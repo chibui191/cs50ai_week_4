@@ -3,6 +3,8 @@ import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix
 
 TEST_SIZE = 0.4
 
@@ -103,6 +105,7 @@ def train_model(evidence, labels):
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
     model = KNeighborsClassifier(n_neighbors=1)
+    # model = GaussianNB()
     return(model.fit(evidence, labels))
 
 
@@ -121,19 +124,12 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    positive_actuals = labels.count(1)
-    positive_predictions = (predictions == 1).sum()
-    correct_positives = min(positive_predictions, positive_actuals)
+    tn, fp, fn, tp = confusion_matrix(labels, predictions).ravel()
 
-    negative_actuals = labels.count(0)
-    negative_predictions = (predictions == 0).sum()
-    correct_negatives = min(negative_predictions, negative_actuals)
+    sensitivity = tp / (tp + fn)
+    specificity = tn / (tn + fp)
 
-    sensitivity = correct_positives / positive_actuals
-    specificity = correct_negatives / negative_actuals
-
-    output = (sensitivity, specificity)
-    return output
+    return sensitivity, specificity
 
 
 if __name__ == "__main__":
